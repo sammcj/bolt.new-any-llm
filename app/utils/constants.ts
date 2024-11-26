@@ -283,9 +283,6 @@ const getOllamaBaseUrl = () => {
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
-  if (typeof window === 'undefined') {
-    return [];
-  }
 
   try {
     const baseUrl = getOllamaBaseUrl();
@@ -299,7 +296,6 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       maxTokenAllowed: 8000,
     }));
   } catch (e) {
-    console.error('Error getting Ollama models:', e);
     return [];
   }
 }
@@ -326,7 +322,6 @@ async function getOpenAILikeModels(): Promise<ModelInfo[]> {
       provider: 'OpenAILike',
     }));
   } catch (e) {
-    console.error('Error getting OpenAILike models:', e);
     return [];
   }
 }
@@ -365,9 +360,6 @@ async function getOpenRouterModels(): Promise<ModelInfo[]> {
 }
 
 async function getLMStudioModels(): Promise<ModelInfo[]> {
-  if (typeof window === 'undefined') {
-    return [];
-  }
 
   try {
     const baseUrl = import.meta.env.LMSTUDIO_API_BASE_URL || 'http://localhost:1234';
@@ -380,7 +372,6 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
       provider: 'LMStudio',
     }));
   } catch (e) {
-    console.error('Error getting LMStudio models:', e);
     return [];
   }
 }

@@ -82,16 +82,23 @@ export function getHuggingFaceModel(apiKey: OptionalApiKey, model: string) {
   return openai(model);
 }
 
+
 export function getOllamaModel(baseURL: string, model: string) {
+  const fetchOptions: Record<string, any> = {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    fetchOptions.mode = 'cors'
+    fetchOptions.credentials = 'include'
+  }
+
   const ollamaInstance = ollama(model, {
     numCtx: DEFAULT_NUM_CTX,
-    fetchOptions: {
-      mode: 'cors', // Enable CORS
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    }
+    fetchOptions
   }) as LanguageModelV1 & { config: any };
 
   ollamaInstance.config.baseURL = `${baseURL}/api`;

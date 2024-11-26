@@ -285,17 +285,22 @@ const getOllamaBaseUrl = () => {
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
     const baseUrl = getOllamaBaseUrl();
-    const response = await fetch(`${baseUrl}/api/tags`, {
-      method: 'GET',
-      mode: 'cors', // Enable CORS
+    const fetchOptions: RequestInit = {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-      },
-    })
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      fetchOptions.mode = 'cors'
+      fetchOptions.credentials = 'include'
+    }
+
+    const response = await fetch(`${baseUrl}/api/tags`, fetchOptions);
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch Ollama models: ${response.statusText}`)
+      throw new Error(`Failed to fetch Ollama models: ${response.statusText}`);
     }
 
     const data = (await response.json()) as OllamaApiResponse;

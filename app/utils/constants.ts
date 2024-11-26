@@ -276,6 +276,8 @@ const getOllamaBaseUrl = () => {
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
+
+  try {
     const baseUrl = getOllamaBaseUrl();
     const response = await fetch(`${baseUrl}/api/tags`);
     const data = (await response.json()) as OllamaApiResponse;
@@ -286,6 +288,9 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       provider: 'Ollama',
       maxTokenAllowed: 8000,
     }))
+  } catch (e) {
+    return []
+  }
 }
 
 async function getOpenAILikeModels(): Promise<ModelInfo[]> {

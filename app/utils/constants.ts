@@ -270,12 +270,6 @@ export let MODEL_LIST: ModelInfo[] = [...staticModels];
 const getOllamaBaseUrl = () => {
   const defaultBaseUrl = import.meta.env.OLLAMA_API_BASE_URL || 'http://localhost:11434';
 
-  // Check if we're in the browser
-  if (typeof window !== 'undefined') {
-    // Frontend always uses localhost
-    return defaultBaseUrl;
-  }
-
   // Backend: Check if we're running in Docker
   const isDocker = process.env.RUNNING_IN_DOCKER === 'true';
 

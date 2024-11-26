@@ -39,7 +39,7 @@ const PROVIDER_LIST: ProviderInfo[] = [
   {
     name: 'Ollama',
     staticModels: [],
-    getDynamicModels: getOllamaModels,
+    getDynamicModels: isClient() ? getOllamaModels : () => Promise.resolve([]),
     getApiKeyLink: 'https://ollama.com/download',
     labelForGetApiKey: 'Download Ollama',
     icon: 'i-ph:cloud-arrow-down',
@@ -270,34 +270,23 @@ export let MODEL_LIST: ModelInfo[] = [...staticModels];
 const getOllamaBaseUrl = () => {
   const defaultBaseUrl = import.meta.env.OLLAMA_API_BASE_URL || 'http://localhost:11434';
 
-  // Check if we're in the browser
-  if (typeof window !== 'undefined') {
-    // Frontend always uses localhost
-    return defaultBaseUrl;
+  // If running in Docker
+  if (import.meta.env.RUNNING_IN_DOCKER === 'true') {
+    return defaultBaseUrl.replace('localhost', 'host.docker.internal');
   }
 
-  // Backend: Check if we're running in Docker
-  const isDocker = process.env.RUNNING_IN_DOCKER === 'true';
-
-  return isDocker ? defaultBaseUrl.replace('localhost', 'host.docker.internal') : defaultBaseUrl;
+  return defaultBaseUrl
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
   try {
     const baseUrl = getOllamaBaseUrl();
-    const fetchOptions: RequestInit = {
+    const response = await fetch(`${baseUrl}/api/tags`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       }
-    }
-
-    if (typeof window !== 'undefined') {
-      fetchOptions.mode = 'cors'
-      fetchOptions.credentials = 'include'
-    }
-
-    const response = await fetch(`${baseUrl}/api/tags`, fetchOptions);
+    });
 
     if (!response.ok) {
       throw new Error(`Failed to fetch Ollama models: ${response.statusText}`);
@@ -399,6 +388,11 @@ async function getLMStudioModels(): Promise<ModelInfo[]> {
 }
 
 async function initializeModelList(): Promise<ModelInfo[]> {
+  // If we're not in the client, only return static models
+  if (!isClient()) {
+    return [...staticModels]
+  }
+  // In the client, load both static and dynamic models
   MODEL_LIST = [
     ...(
       await Promise.all(
@@ -411,6 +405,12 @@ async function initializeModelList(): Promise<ModelInfo[]> {
   ];
   return MODEL_LIST;
 }
+
+// Helper to check if we're in the client environment
+function isClient() {
+  return typeof window !== 'undefined'
+}
+
 
 export {
   getOllamaModels,

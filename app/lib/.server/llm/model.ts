@@ -85,6 +85,13 @@ export function getHuggingFaceModel(apiKey: OptionalApiKey, model: string) {
 export function getOllamaModel(baseURL: string, model: string) {
   const ollamaInstance = ollama(model, {
     numCtx: DEFAULT_NUM_CTX,
+    fetchOptions: {
+      mode: 'cors', // Enable CORS
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    }
   }) as LanguageModelV1 & { config: any };
 
   ollamaInstance.config.baseURL = `${baseURL}/api`;

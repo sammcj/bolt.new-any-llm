@@ -283,13 +283,21 @@ const getOllamaBaseUrl = () => {
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
   try {
     const baseUrl = getOllamaBaseUrl();
-    const response = await fetch(`${baseUrl}/api/tags`);
+    const response = await fetch(`${baseUrl}/api/tags`, {
+      method: 'GET',
+      mode: 'cors', // Enable CORS
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Ollama models: ${response.statusText}`)
+    }
+
     const data = (await response.json()) as OllamaApiResponse;
 
     return data.models.map((model: OllamaModel) => ({
@@ -299,7 +307,7 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       maxTokenAllowed: 8000,
     }));
   } catch (e) {
-    console.error('Error getting Ollama models:', e);
+    console.error('Error fetching Ollama models:', e);
     return [];
   }
 }

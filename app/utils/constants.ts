@@ -272,13 +272,10 @@ const getOllamaBaseUrl = () => {
 
   // Backend: Check if we're running in Docker
   const isDocker = process.env.RUNNING_IN_DOCKER === 'true';
-
   return isDocker ? defaultBaseUrl.replace('localhost', 'host.docker.internal') : defaultBaseUrl;
 };
 
 async function getOllamaModels(): Promise<ModelInfo[]> {
-
-  try {
     const baseUrl = getOllamaBaseUrl();
     const response = await fetch(`${baseUrl}/api/tags`);
     const data = (await response.json()) as OllamaApiResponse;
@@ -288,10 +285,7 @@ async function getOllamaModels(): Promise<ModelInfo[]> {
       label: `${model.name} (${model.details.parameter_size})`,
       provider: 'Ollama',
       maxTokenAllowed: 8000,
-    }));
-  } catch (e) {
-    return [];
-  }
+    }))
 }
 
 async function getOpenAILikeModels(): Promise<ModelInfo[]> {
